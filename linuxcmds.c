@@ -5,10 +5,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <pwd.h>
 
 #define PATH_TO_FILE  1
 #define PATH_TO_DIRECTORY  2
 #define INVALID_PATH  -1
+
+char* currentDirectory;
+char* homeDirectory;
 
 int checkIfPathExists(char* path) {
   struct stat data;
@@ -79,8 +83,22 @@ void executeWCComand(char* filePath){
   executeWCComandForSingleFile(filePath,&lineCountForCurrentFile, &wordCountForCurrentFile, &charCountForCurrentFile);
   printf("partial result = %d | %d | %d \n",lineCountForCurrentFile,wordCountForCurrentFile,charCountForCurrentFile);
 }
+const char* getUserHomeDirectory(){
+  //return getenv("HOME");
+  return getpwuid(getuid())->pw_dir;
+}
+void initializeEnvironment(){
+  homeDirectory = getUserHomeDirectory();
+  currentDirectory = getUserHomeDirectory();
+}
 int main ()
 {
+
+  printf("home folder = %s\n",getenv("HOME"));
+  printf("home folder = %s\n",getpwuid(getuid())->pw_dir);
+  initializeEnvironment();
+  printf("home directory = %s\n", homeDirectory);
+  printf("currentDirectory = %s\n",currentDirectory);
   executeWCComand("file.txt");
   printf("%d path checkIfPathExists \n",checkIfPathExists("file.txt"));
   printf("%d path checkIfPathExists \n",checkIfPathExists("file2.txt"));
