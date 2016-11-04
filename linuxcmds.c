@@ -6,12 +6,15 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <pwd.h>
+#include <limits.h>
 
 #define PATH_TO_FILE  1
 #define PATH_TO_DIRECTORY  2
 #define INVALID_PATH  -1
+#define VALID_COMMAND_INPUT 1
+#define INVALID_COMMAND_INPUT -1
 
-char* currentDirectory;
+char currentDirectory[PATH_MAX];
 char* homeDirectory;
 
 int checkIfPathExists(char* path) {
@@ -83,13 +86,62 @@ void executeWCComand(char* filePath){
   executeWCComandForSingleFile(filePath,&lineCountForCurrentFile, &wordCountForCurrentFile, &charCountForCurrentFile);
   printf("partial result = %d | %d | %d \n",lineCountForCurrentFile,wordCountForCurrentFile,charCountForCurrentFile);
 }
-const char* getUserHomeDirectory(){
+void executePWDCommand()
+{
+  printf("%s\n",currentDirectory);
+}  
+char* getFullPath (char* path) {
+  //TODO
+  //if the path is relative(it does not start with slash) -> fullPath = current + "/" + path
+  //if the path is absolute (starts with slash) -> fullPath = path
+  return NULL;
+  
+}
+int validateCDCommand(char* path) {
+  if(checkIfPathExists(getFullPath(path)) == PATH_TO_DIRECTORY) {
+    return VALID_COMMAND_INPUT;
+  }
+  return INVALID_COMMAND_INPUT;
+}
+int validatePWDCommand() {
+  //TODO
+  return INVALID_COMMAND_INPUT;
+}
+void executeCDCommand(char* newDirectory) {
+  //error here - fix it!!
+  currentDirectory = newDirectory;
+  
+}
+char* getUserHomeDirectory(){
   //return getenv("HOME");
   return getpwuid(getuid())->pw_dir;
 }
+
 void initializeEnvironment(){
   homeDirectory = getUserHomeDirectory();
-  currentDirectory = getUserHomeDirectory();
+  if (getcwd(currentDirectory,PATH_MAX) == NULL) {
+    exit(1);
+   } 
+}
+void controller() {
+  char* command;
+  
+  switch(command) {
+    //just a model, cd, for example, has to receive inputs. The controller also needs to receive inputs
+    case "pwd":
+      if (validatePWDCommand() == VALID_COMMAND_INPUT) {
+	executePWDCommand();
+      }
+      break;
+    case "cd" : 
+      if (validateCDCommand("TODO") == VALID_COMMAND_INPUT) {
+	executeCDCommand("TODO");
+      }
+      break;
+    default:
+      printf("Invalid command! \n");
+  }
+  
 }
 int main ()
 {
@@ -103,6 +155,9 @@ int main ()
   printf("%d path checkIfPathExists \n",checkIfPathExists("file.txt"));
   printf("%d path checkIfPathExists \n",checkIfPathExists("file2.txt"));
   printf("%d path checkIfPathExists \n",checkIfPathExists("pasta"));
+  printf("%d path checkIfPathExists \n",checkIfPathExists("/etc"));
+  printf("%d path checkIfPathExists \n",checkIfPathExists("etc"));
+  executePWDCommand();
   return 0;
 } 
   
