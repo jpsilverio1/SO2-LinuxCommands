@@ -13,6 +13,7 @@
 #define INVALID_PATH  -1
 #define VALID_COMMAND_INPUT 1
 #define INVALID_COMMAND_INPUT -1
+#define MAX_COMMAND_SIZE 6000
 
 char currentDirectory[PATH_MAX];
 char* homeDirectory;
@@ -105,11 +106,13 @@ int validateCDCommand(char* path) {
 }
 int validatePWDCommand() {
   //TODO
-  return INVALID_COMMAND_INPUT;
+  //return INVALID_COMMAND_INPUT;
+  return VALID_COMMAND_INPUT;
 }
 void executeCDCommand(char* newDirectory) {
   //error here - fix it!!
-  currentDirectory = newDirectory;
+  strcpy(currentDirectory, newDirectory);
+  //currentDirectory = newDirectory;
   
 }
 char* getUserHomeDirectory(){
@@ -123,10 +126,48 @@ void initializeEnvironment(){
     exit(1);
    } 
 }
-void controller() {
-  char* command;
-  
-  switch(command) {
+char* getCommand(char* commandLine) {
+  return strtok (commandLine," ");
+}
+void interpretCommand(char* commandLine) {
+  char* command = getCommand(commandLine);
+  printf("co = %s", command);
+  if (strcmp(command,"pwd\n") == 0 || strcmp(command,"pwd") == 0) {
+      executePWDCommand();
+  } else {
+    if (strcmp(command,"wc\n") == 0 || strcmp(command,"wc") == 0) {
+    
+    }
+    else {
+      if (strcmp(command,"cd\n") == 0 || strcmp(command,"cd") == 0) {
+    
+      }
+      else {
+        if (strcmp(command,"cat\n") == 0 || strcmp(command,"cat") == 0) {
+    
+        }
+        else {
+          if (strcmp(command,"echo\n") == 0 || strcmp(command,"echo") == 0) {
+    
+          }
+          else {
+            if (strcmp(command,"grep\n") == 0 || strcmp(command,"grep") == 0) {
+    
+            }
+            else {
+              if (strcmp(command,"man\n") == 0 || strcmp(command,"man") == 0) {
+    
+              }
+              else {
+                printf("Invalid command! \n");
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  /*switch(command) {
     //just a model, cd, for example, has to receive inputs. The controller also needs to receive inputs
     case "pwd":
       if (validatePWDCommand() == VALID_COMMAND_INPUT) {
@@ -140,15 +181,29 @@ void controller() {
       break;
     default:
       printf("Invalid command! \n");
-  }
+  }*/
   
 }
 int main ()
 {
+  int endExecution = 0;
+  initializeEnvironment();
+  char commandLine [MAX_COMMAND_SIZE];
+  while (!endExecution) {
+    printf("/%s:~$ ",currentDirectory);
+    fgets (commandLine, MAX_COMMAND_SIZE, stdin);
+    printf("command = %s ",commandLine);
+    if (strcmp(commandLine,"exit\n") == 0) {
+      endExecution = 1;
+    }
+    else {
+      interpretCommand(commandLine);
+    }
 
+  }
   printf("home folder = %s\n",getenv("HOME"));
   printf("home folder = %s\n",getpwuid(getuid())->pw_dir);
-  initializeEnvironment();
+  
   printf("home directory = %s\n", homeDirectory);
   printf("currentDirectory = %s\n",currentDirectory);
   executeWCComand("file.txt");
