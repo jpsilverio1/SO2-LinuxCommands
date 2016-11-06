@@ -1,0 +1,4 @@
+regex cd with parameter - full path@~/Google Drive/UFRJ/8 periodo - 2016.2/2016.2/SO2/trabalho4/SO2-LinuxCommands: (jessica)$ ./reg "^cd ((/[^/ ]*)+/? ?){1}$" "cd /olamundo/file.txt"
+regex for pwd (does not accept parameter) @~/Google Drive/UFRJ/8 periodo - 2016.2/2016.2/SO2/trabalho4/SO2-LinuxCommands: (jessica)$ ./reg "^[[:blank:]]*pwd[[:blank:]]*$" "pwd   "
+
+if cd was to accept multiple paths - maybe for wc - "^cd ((/[^/ ]*)+/? ?)+$"
