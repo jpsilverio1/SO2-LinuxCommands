@@ -104,6 +104,9 @@ int validateCDCommand(char* path) {
   }
   return INVALID_COMMAND_INPUT;
 }
+int parseCDArguments() {
+
+}
 int validatePWDCommand() {
   //TODO
   //return INVALID_COMMAND_INPUT;
@@ -130,6 +133,7 @@ char* getCommand(char* commandLine) {
   return strtok (commandLine," ");
 }
 void interpretCommand(char* commandLine) {
+  splitBySpaceIntoArray(commandLine);
   char* command = getCommand(commandLine);
   printf("co = %s", command);
   if (strcmp(command,"pwd\n") == 0 || strcmp(command,"pwd") == 0) {
@@ -184,7 +188,33 @@ void interpretCommand(char* commandLine) {
   }*/
   
 }
-int main ()
+char** splitBySpaceIntoArray(char* str) {
+  printf("string = %s\n", str);
+  //char    str[]= "ls -l";
+  char ** res  = NULL;
+  char *  p    = strtok (str, " ");
+  int n_spaces = 0, i;
+
+
+  /* split string and append tokens to 'res' */
+
+  while (p) {
+    res = realloc (res, sizeof (char*) * ++n_spaces);
+    if (res == NULL)
+      exit (-1); /* memory allocation failed */
+
+    res[n_spaces-1] = p;
+
+    p = strtok (NULL, " ");
+  }
+  printf(" number = %d \n",n_spaces);
+  for(i = 0; i<n_spaces; i++)
+  {
+     printf("\n Element is %s \n", res[i]);
+     printf("i = %d \n",i);
+  }
+}
+int main (int argc, char *argv[])
 {
   int endExecution = 0;
   initializeEnvironment();
@@ -201,6 +231,7 @@ int main ()
     }
 
   }
+  /*
   printf("home folder = %s\n",getenv("HOME"));
   printf("home folder = %s\n",getpwuid(getuid())->pw_dir);
   
@@ -212,7 +243,9 @@ int main ()
   printf("%d path checkIfPathExists \n",checkIfPathExists("pasta"));
   printf("%d path checkIfPathExists \n",checkIfPathExists("/etc"));
   printf("%d path checkIfPathExists \n",checkIfPathExists("etc"));
-  executePWDCommand();
+  executePWDCommand();*/
+  splitBySpaceIntoArray(argv[1]);
+
   return 0;
 } 
   
