@@ -46,7 +46,7 @@ int countWordsInLine(char* line) {
     wordCount+=1;
     word = strtok (NULL, stringDelimiters);
   }
-  printf(" word count = %d \n",wordCount);
+  //printf(" word count = %d \n",wordCount);
   return wordCount;
 }
 void calculateForLine(char* line, int* lineCount, int* wordCount, int* charCount) {
@@ -54,7 +54,7 @@ void calculateForLine(char* line, int* lineCount, int* wordCount, int* charCount
   *charCount+=strlen(line);
   *wordCount += countWordsInLine(line);
 }
-void executeWCComandForSingleFile(char* filePath, int* lineCount, int* wordCount, int* charCount) {
+void executeWCCommandForSingleFile(char* filePath, int* lineCount, int* wordCount, int* charCount) {
   FILE *file = fopen ( filePath, "r" );
   *lineCount =0;
   *wordCount =0;
@@ -65,7 +65,7 @@ void executeWCComandForSingleFile(char* filePath, int* lineCount, int* wordCount
       while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
       {
         calculateForLine(line, lineCount, wordCount, charCount);
-         printf("%d | %d | %d \n",*lineCount,*wordCount,*charCount);
+         //printf("%d | %d | %d | %s\n",*lineCount,*wordCount,*charCount);
       }
       fclose ( file );
    }
@@ -74,7 +74,26 @@ void executeWCComandForSingleFile(char* filePath, int* lineCount, int* wordCount
       perror ( filePath ); /* why didn't the file open? */
    }
 }
-void executeWCComand(char* filePath){
+
+char* getFullPath (char* path) {
+  
+  char *fullPath = malloc(PATH_MAX);
+  //if the path is relative(it does not start with slash) -> fullPath = current + "/" + path
+  if(path[0] == '/'){
+	strcpy(fullPath,path);
+  }
+  //if the path is absolute (starts with slash) -> fullPath = path
+  else {
+  	strcpy(fullPath,currentDirectory);
+  	strcat(fullPath,"/");
+  	strcat(fullPath, path);
+  }
+
+  return fullPath;
+  
+}
+
+void executeWCCommand(char** filePaths, int numberOfPaths){
   int lineCountForCurrentFile;
   int wordCountForCurrentFile;
   int charCountForCurrentFile;
@@ -82,22 +101,60 @@ void executeWCComand(char* filePath){
   int totalWordCount =0;
   int totalCharCount =0;
 
-  //TODO: Receive a list of paths as input and loop through the list and perform validation of the options for this command
-  //accumulate total counts and, at the end..if the size of the array of paths is bigger than 1, display the total counts
-  executeWCComandForSingleFile(filePath,&lineCountForCurrentFile, &wordCountForCurrentFile, &charCountForCurrentFile);
-  printf("partial result = %d | %d | %d \n",lineCountForCurrentFile,wordCountForCurrentFile,charCountForCurrentFile);
+
+  //TODO: Make changes to accept flags, validate paths and ignore invalid paths
+  int i = 0;
+  while(i<numberOfPaths){
+	//convert to absolute path
+  	char * path = getFullPath(filePaths[i]);
+
+  	executeWCCommandForSingleFile(filePaths[i],&lineCountForCurrentFile, &wordCountForCurrentFile, &charCountForCurrentFile);
+  	printf("%d | %d | %d %s\n",lineCountForCurrentFile,wordCountForCurrentFile,charCountForCurrentFile, filePaths[i]);
+	totalLineCount += lineCountForCurrentFile;
+	totalWordCount += wordCountForCurrentFile;
+	totalCharCount += charCountForCurrentFile;
+	i++;
+  }
+
+  if(numberOfPaths>1){
+	printf("%d | %d | %d total\n" ,totalLineCount ,totalWordCount ,totalCharCount);
+  }
 }
+
+void displayFileContent(char * filePath){
+	FILE *file = fopen(filePath, "r");
+
+	if (file != NULL)
+	{
+		int c;
+
+			while ((c = fgetc(file)) != EOF)
+			{
+			    putchar(c);
+			}
+		fclose(file);
+	}
+}
+
+void executeCATCommand(char ** filePaths, int numberOfPaths){
+	//TODO: Make changes to accept flags, validate paths and ignore invalid paths
+
+	int i = 0;
+	  while(i<numberOfPaths){
+		// convert to absolute path
+	  	char * path = getFullPath(filePaths[i]);
+
+		displayFileContent(path);	  	
+
+		i++;
+	  }
+}
+
 void executePWDCommand()
 {
   printf("%s\n",currentDirectory);
 }  
-char* getFullPath (char* path) {
-  //TODO
-  //if the path is relative(it does not start with slash) -> fullPath = current + "/" + path
-  //if the path is absolute (starts with slash) -> fullPath = path
-  return NULL;
-  
-}
+
 int validateCDCommand(char* path) {
   if(checkIfPathExists(getFullPath(path)) == PATH_TO_DIRECTORY) {
     return VALID_COMMAND_INPUT;
@@ -113,11 +170,41 @@ int validatePWDCommand() {
   return VALID_COMMAND_INPUT;
 }
 void executeCDCommand(char* newDirectory) {
-  //error here - fix it!!
-  strcpy(currentDirectory, newDirectory);
+  //TODO: actually validate entries, allow flags
+
+  char actualpath [PATH_MAX];
+  newDirectory = getFullPath(newDirectory);
+  realpath(newDirectory, actualpath);
+
   //currentDirectory = newDirectory;
+  strcpy(currentDirectory, actualpath);
   
 }
+
+void executeECHOCommand(char * argument){
+	//TODO: validate maybe? Add more stuff?
+	printf("%s\n" ,argument); 
+}
+
+void executeMANCommand(char * commandName){
+	if (strcmp(commandName,"pwd") == 0 || strcmp(commandName,"wc") == 0 || strcmp(commandName,"cd") == 0 || strcmp(commandName,"cat") == 0
+	 || strcmp(commandName,"echo") == 0 || strcmp(commandName,"grep") == 0 || strcmp(commandName,"man") == 0) {
+	    
+	}
+	else {
+		// INVALID ARGUMENT
+		return;
+	}
+
+	strcat(commandName, ".txt");
+
+	char* filePath = getFullPath(commandName);
+	
+	printf("path obtido: %s\n" , filePath);
+
+	displayFileContent(filePath);
+}
+
 char* getUserHomeDirectory(){
   //return getenv("HOME");
   return getpwuid(getuid())->pw_dir;
@@ -132,27 +219,73 @@ void initializeEnvironment(){
 char* getCommand(char* commandLine) {
   return strtok (commandLine," ");
 }
+
+char** splitBySpaceIntoArray(char* str, int* arraySize) {
+  //printf("string = %s\n", str);
+  //char    str[]= "ls -l";
+  char ** res  = NULL;
+  char *  p    = strtok (str, " ");
+  int n_spaces = 0, i;
+
+
+  /* split string and append tokens to 'res' */
+
+  while (p) {
+    res = realloc (res, sizeof (char*) * ++n_spaces);
+    if (res == NULL)
+      exit (-1); /* memory allocation failed */
+
+    res[n_spaces-1] = p;
+
+    p = strtok (NULL, " ");
+  }
+  //printf(" number = %d \n",n_spaces);
+  for(i = 0; i<n_spaces; i++)
+  {
+     //printf("\n Element is %s \n", res[i]);
+     //printf("i = %d \n",i);
+  }
+
+  // here we eliminate '\n' from the last element
+  char * last_element = res[n_spaces-1];
+  last_element[strlen(last_element) - 1] = 0;
+  res[n_spaces-1] = last_element;
+
+  //setting size pointer
+  //this is a way of returning the size of the array
+  *arraySize = n_spaces - 1;
+
+  //only returning the non-command elements
+	return res + 1;
+}
+
 void interpretCommand(char* commandLine) {
-  splitBySpaceIntoArray(commandLine);
+
+  int size;
+  //vector of strings containing all the elements after the command
+  // after calling this "size" now stores the array size
+  char ** elements = splitBySpaceIntoArray(commandLine, &size);
+  //single string containing command
   char* command = getCommand(commandLine);
-  printf("co = %s", command);
+  //printf("co = %s", elements[0]);
   if (strcmp(command,"pwd\n") == 0 || strcmp(command,"pwd") == 0) {
       executePWDCommand();
   } else {
     if (strcmp(command,"wc\n") == 0 || strcmp(command,"wc") == 0) {
-    
+    	executeWCCommand(elements, size);
+	
     }
     else {
       if (strcmp(command,"cd\n") == 0 || strcmp(command,"cd") == 0) {
-    
+	executeCDCommand(elements[0]);
       }
       else {
         if (strcmp(command,"cat\n") == 0 || strcmp(command,"cat") == 0) {
-    
+    	  executeCATCommand(elements, size);
         }
         else {
           if (strcmp(command,"echo\n") == 0 || strcmp(command,"echo") == 0) {
-    
+    		executeECHOCommand(elements[0]);
           }
           else {
             if (strcmp(command,"grep\n") == 0 || strcmp(command,"grep") == 0) {
@@ -160,7 +293,7 @@ void interpretCommand(char* commandLine) {
             }
             else {
               if (strcmp(command,"man\n") == 0 || strcmp(command,"man") == 0) {
-    
+    		executeMANCommand(elements[0]);
               }
               else {
                 printf("Invalid command! \n");
@@ -188,41 +321,17 @@ void interpretCommand(char* commandLine) {
   }*/
   
 }
-char** splitBySpaceIntoArray(char* str) {
-  printf("string = %s\n", str);
-  //char    str[]= "ls -l";
-  char ** res  = NULL;
-  char *  p    = strtok (str, " ");
-  int n_spaces = 0, i;
 
 
-  /* split string and append tokens to 'res' */
-
-  while (p) {
-    res = realloc (res, sizeof (char*) * ++n_spaces);
-    if (res == NULL)
-      exit (-1); /* memory allocation failed */
-
-    res[n_spaces-1] = p;
-
-    p = strtok (NULL, " ");
-  }
-  printf(" number = %d \n",n_spaces);
-  for(i = 0; i<n_spaces; i++)
-  {
-     printf("\n Element is %s \n", res[i]);
-     printf("i = %d \n",i);
-  }
-}
 int main (int argc, char *argv[])
 {
   int endExecution = 0;
   initializeEnvironment();
   char commandLine [MAX_COMMAND_SIZE];
   while (!endExecution) {
-    printf("/%s:~$ ",currentDirectory);
+    printf("%s:~$ ",currentDirectory);
     fgets (commandLine, MAX_COMMAND_SIZE, stdin);
-    printf("command = %s ",commandLine);
+    //printf("command = %s ",commandLine);
     if (strcmp(commandLine,"exit\n") == 0) {
       endExecution = 1;
     }
@@ -244,7 +353,7 @@ int main (int argc, char *argv[])
   printf("%d path checkIfPathExists \n",checkIfPathExists("/etc"));
   printf("%d path checkIfPathExists \n",checkIfPathExists("etc"));
   executePWDCommand();*/
-  splitBySpaceIntoArray(argv[1]);
+  //splitBySpaceIntoArray(argv[1]);
 
   return 0;
 } 
