@@ -342,6 +342,11 @@ char** splitBySpaceIntoArray(char* str, int* arraySize) {
   last_element[strlen(last_element) - 1] = 0;
   res[n_spaces-1] = last_element;
 
+  //checking if last argument is actually whitespace
+  if(strspn(res[n_spaces-1], " \r\n\t") == strlen(res[n_spaces-1])){
+    printf("detectou que eh soh espaco branco\n");
+    n_spaces--;
+  }
   //setting size pointer
   //this is a way of returning the size of the array
   *arraySize = n_spaces - 1;
@@ -365,7 +370,13 @@ void interpretCommand(char* commandLine) {
     }
     else {
       if (strcmp(command,"cd\n") == 0 || strcmp(command,"cd") == 0) {
-          executeCDCommand(elements,size);
+          if (size==0 || size == 1) {
+            executeCDCommand(elements,size);
+          }
+          else {
+            printf("Invalid arguments for cd command. The command takes zero or 1 argument \n");
+          }
+          
       }
       else {
         if (strcmp(command,"cat\n") == 0 || strcmp(command,"cat") == 0) {
