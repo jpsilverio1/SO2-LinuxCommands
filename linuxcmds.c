@@ -148,15 +148,28 @@ void displayFileContent(char * filePath){
 }
 
 void executeCATCommand(char ** filePaths, int numberOfPaths){
+  if (numberOfPaths == 0) {
+    printf("You must provide at least one file to the cat command \n");
+    return;
+  }
   //TODO: Make changes to accept flags, validate paths and ignore invalid paths
 
   int i = 0;
     while(i<numberOfPaths){
     // convert to absolute path
-      char * path = getFullPath(filePaths[i]);
-
-    displayFileContent(path);     
-
+    char * path = getFullPath(filePaths[i]);
+    int pathType = checkIfPathExists(path);
+    //validating input
+      if (pathType == PATH_TO_FILE) {
+        displayFileContent(path);
+      } else {
+        if (pathType == PATH_TO_DIRECTORY) {
+          printf("Invalid argument for cat command: %s is a directory \n",path);
+        }
+        else {
+          printf("Invalid argument for cat command : path %s does not exist \n",path);
+        }
+      }
     i++;
     }
 }
@@ -229,17 +242,66 @@ void executeMANCommand(char * commandName){
       
   }
   else {
-    // INVALID ARGUMENT
+    printf("No manual entry for %s \n",commandName);
     return;
   }
 
   strcat(commandName, ".txt");
 
   char* filePath = getFullPath(commandName);
-  
-  printf("path obtido: %s\n" , filePath);
-
   displayFileContent(filePath);
+}
+
+void executeGREPCommandForSingleFile(char* filePath, char* stringToMatch) {
+  FILE *file = fopen ( filePath, "r" );
+   if ( file != NULL )
+   {
+      char line [ 1024 ]; /* or other suitable maximum line size */
+      while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
+      {
+        if(strstr(line , stringToMatch) !=NULL)
+        {
+          printf("%s:%s" , filePath, line);
+        }
+        else
+        {
+            continue;
+        }
+      }
+      fclose ( file );
+   }
+   else
+   {
+      perror ( filePath ); /* why didn't the file open? */
+   }
+}
+void executeGREPCommand(char** arguments, int numberOfPaths){
+  if (numberOfPaths>1) {
+    char* stringToMatch = malloc(PATH_MAX);
+    strcpy(stringToMatch,arguments[0]);
+    //TODO: Make changes to accept flags, validate paths and ignore invalid paths
+    int i = 1;
+    while(i<numberOfPaths){
+    //convert to absolute path
+      char * path = getFullPath(arguments[i]);
+      int pathType = checkIfPathExists(path);
+    //validating input
+      if (pathType == PATH_TO_FILE) {
+        executeGREPCommandForSingleFile(arguments[i], stringToMatch);
+      } else {
+        if (pathType == PATH_TO_DIRECTORY) {
+          printf("Invalid argument for grep command: %s is a directory \n",path);
+        }
+        else {
+          printf("Invalid argument for grep command : path %s does not exist \n",path);
+        }
+      }
+      i++;
+    }
+  }
+  else {
+    printf("You must provide at least 2 arguments to the grep command: the string to match and a file \n");
+  } 
 }
 
 char* getUserHomeDirectory(){
@@ -258,8 +320,6 @@ char* getCommand(char* commandLine) {
 }
 
 char** splitBySpaceIntoArray(char* str, int* arraySize) {
-  //printf("string = %s\n", str);
-  //char    str[]= "ls -l";
   char ** res  = NULL;
   char *  p    = strtok (str, " ");
   int n_spaces = 0, i;
@@ -275,12 +335,6 @@ char** splitBySpaceIntoArray(char* str, int* arraySize) {
     res[n_spaces-1] = p;
 
     p = strtok (NULL, " ");
-  }
-  //printf(" number = %d \n",n_spaces);
-  for(i = 0; i<n_spaces; i++)
-  {
-     //printf("\n Element is %s \n", res[i]);
-     //printf("i = %d \n",i);
   }
 
   // here we eliminate '\n' from the last element
@@ -323,7 +377,7 @@ void interpretCommand(char* commandLine) {
           }
           else {
             if (strcmp(command,"grep\n") == 0 || strcmp(command,"grep") == 0) {
-    
+              executeGREPCommand(elements, size);
             }
             else {
               if (strcmp(command,"man\n") == 0 || strcmp(command,"man") == 0) {
@@ -343,13 +397,13 @@ void interpretCommand(char* commandLine) {
 int main (int argc, char *argv[])
 
 {
+  executeGREPCommandForSingleFile("/Users/jpsilverio/Documents/junk.txt", "is");
   int endExecution = 0;
   initializeEnvironment();
   char commandLine [MAX_COMMAND_SIZE];
   while (!endExecution) {
     printf("%s:~$ ",currentDirectory);
     fgets (commandLine, MAX_COMMAND_SIZE, stdin);
-    //printf("command = %s ",commandLine);
     if (strcmp(commandLine,"exit\n") == 0) {
       endExecution = 1;
     }
