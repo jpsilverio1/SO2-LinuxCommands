@@ -27,11 +27,7 @@ void executeCDCommand(char** arguments, int numberOfArguments) {
   char actualpath [PATH_MAX];
   newDirectory = getFullPath(newDirectory);
   realpath(newDirectory, actualpath);
- 
-
-
   int pathType = checkIfPathExists(newDirectory);
-  printf("new directory2 = %s path type = %d \n", newDirectory,pathType);
   //validating input
   if (pathType == PATH_TO_DIRECTORY) {
     //currentDirectory = newDirectory;

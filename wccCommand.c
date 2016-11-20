@@ -1,7 +1,41 @@
 #include "main.h"
 #include "wccCommand.h"
 
-
+int parseWCCommand(char** arguments, int size, int* cFlag, int* lFlag, int* wFlag) {
+  int internalCFlag = 0;
+  int internalLFlag = 0;
+  int internalWFlag = 0;
+  int index;
+  int option;
+  optind = 1;
+  while ((option = getopt (size, arguments, "cwl")) != -1)
+    switch (option)
+     {
+      case 'c':
+        internalCFlag = 1;
+        break;
+      case 'w':
+        internalWFlag = 1;
+        break;
+      case 'l':
+        internalLFlag = 1;
+        break;
+      default:
+        break;
+      }
+      if (internalLFlag == 1 || internalCFlag == 1 || internalWFlag == 1) {
+        *cFlag = internalCFlag;
+        *lFlag = internalLFlag;
+        *wFlag = internalWFlag;
+      }
+     
+       for (index = optind; index < size; index++)
+    printf ("Non-option argument %s\n", arguments[index]);
+      return optind;
+    for (index = optind; index < size; index++)
+    printf ("Non-option argument %s\n", arguments[index]);
+  
+}
 int countWordsInLine(char* line) {
   char * word;
   int wordCount =0;
@@ -27,7 +61,7 @@ void executeWCCommandForSingleFile(char* filePath, int* lineCount, int* wordCoun
   *charCount =0;
    if ( file != NULL )
    {
-      char line [ 1024 ]; /* or other suitable maximum line size */
+      char line [ 1024 ]; 
       while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
       {
         calculateForLine(line, lineCount, wordCount, charCount);
@@ -36,7 +70,7 @@ void executeWCCommandForSingleFile(char* filePath, int* lineCount, int* wordCoun
    }
    else
    {
-      perror ( filePath ); /* why didn't the file open? */
+      perror ( filePath ); 
    }
 }
 
@@ -49,7 +83,10 @@ void executeWCCommand(char** filePaths, int numberOfPaths){
     int totalWordCount =0;
     int totalCharCount =0;
 
-    //TODO: Make changes to accept flags, validate paths and ignore invalid paths
+    int cFlag = 1, lFlag = 1, wFlag= 1;
+    int initialArgumentIndex = parseWCCommand(filePaths, numberOfPaths, &cFlag, &lFlag, &wFlag);
+     printf("flag values c: %d l: %d w: %d \n", cFlag, lFlag, wFlag);
+    printf("initialArgumentIndex = %d \n",initialArgumentIndex);
     int i = 0;
     while(i<numberOfPaths){
     //convert to absolute path
@@ -58,7 +95,16 @@ void executeWCCommand(char** filePaths, int numberOfPaths){
     //validating input
       if (pathType == PATH_TO_FILE) {
         executeWCCommandForSingleFile(filePaths[i],&lineCountForCurrentFile, &wordCountForCurrentFile, &charCountForCurrentFile);
-        printf("\t %d \t %d \t %d \t %s\n",lineCountForCurrentFile,wordCountForCurrentFile,charCountForCurrentFile, filePaths[i]);
+        if (lFlag == 1) {
+          printf("\t %d",lineCountForCurrentFile);
+        }
+        if (wFlag == 1) {
+          printf("\t %d",wordCountForCurrentFile);
+        }
+        if (cFlag == 1) {
+          printf("\t %d",charCountForCurrentFile);
+        }
+        printf("\t %s\n",filePaths[i]);
         totalLineCount += lineCountForCurrentFile;
         totalWordCount += wordCountForCurrentFile;
         totalCharCount += charCountForCurrentFile;
@@ -73,7 +119,16 @@ void executeWCCommand(char** filePaths, int numberOfPaths){
       i++;
     }
     if(numberOfPaths>1){
-      printf("%d | %d | %d total\n" ,totalLineCount ,totalWordCount ,totalCharCount);
+      if (lFlag == 1) {
+          printf("\t %d",totalLineCount);
+        }
+        if (wFlag == 1) {
+          printf("\t %d",totalWordCount);
+        }
+        if (cFlag == 1) {
+          printf("\t %d",totalCharCount);
+        }
+        printf("\t total\n");
     }
   }
   else {

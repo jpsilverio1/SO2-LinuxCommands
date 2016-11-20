@@ -129,9 +129,9 @@ void interpretCommand(char* commandLine) {
   char ** elements = splitBySpaceIntoArray(commandLine, &size);
   //single string containing command
   char* command = getCommand(commandLine);
-  char** commandLineWithCommand = getArgumentsFromLine(elements);
+  char** commandLineWithoutCommand = getArgumentsFromLine(elements);
   int sizeWithoutCommand = size -1;
-  printf("command = %s size = %d\n",command,size);
+  //printf("command = %s size = %d\n",command,size);
   if (strcmp(command,"pwd\n") == 0 || strcmp(command,"pwd") == 0) {
       executePWDCommand();
   } else {
@@ -140,8 +140,8 @@ void interpretCommand(char* commandLine) {
     }
     else {
       if (strcmp(command,"cd\n") == 0 || strcmp(command,"cd") == 0) {
-          if (size==0 || size == 1) {
-            executeCDCommand(elements,size);
+          if (sizeWithoutCommand==0 || sizeWithoutCommand == 1) {
+            executeCDCommand(commandLineWithoutCommand,sizeWithoutCommand);
           }
           else {
             printf("Invalid arguments for cd command. The command takes zero or 1 argument \n");
@@ -153,7 +153,7 @@ void interpretCommand(char* commandLine) {
         }
         else {
           if (strcmp(command,"echo\n") == 0 || strcmp(command,"echo") == 0) {
-        executeECHOCommand(elements[0]);
+        executeECHOCommand(commandLineWithoutCommand[0]);
           }
           else {
             if (strcmp(command,"grep\n") == 0 || strcmp(command,"grep") == 0) {
@@ -161,7 +161,7 @@ void interpretCommand(char* commandLine) {
             }
             else {
               if (strcmp(command,"man\n") == 0 || strcmp(command,"man") == 0) {
-        executeMANCommand(elements[0]);
+        executeMANCommand(commandLineWithoutCommand[0]);
               }
               else {
                 printf("Invalid command! \n");

@@ -10,12 +10,10 @@ int parseCATCommand(char** arguments, int size, int* flag) {
      {
       case 'n':
         nFlag = 1;
-		printf("entrei aqui \n");
         break;
       default:
 		break;
       }
-      printf("flag = %d \n",nFlag);
       *flag = nFlag;
       return optind;
     for (index = optind; index < size; index++)
@@ -29,8 +27,6 @@ void executeCATCommand(char ** filePaths, int numberOfPaths){
   }
   int flag;
   int initialIndex = parseCATCommand(filePaths, numberOfPaths, &flag);
-  //TODO: Make changes to accept flags, validate paths and ignore invalid paths
-
   int i = initialIndex;
     while(i<numberOfPaths){
     // convert to absolute path
