@@ -64,19 +64,23 @@ void executeGREPCommandForSingleFile(char* filePath, char* stringToMatch, int iF
    }
 }
 void executeGREPCommand(char** arguments, int numberOfPaths){
-  if (numberOfPaths>1) {
+  int iFlag = 0;
+  int initialArgumentIndex = parseGREPCommand(arguments, numberOfPaths, &iFlag);
+
+	if ((iFlag == 1 && numberOfPaths > 4) || numberOfPaths>3) {
     char* stringToMatch = malloc(PATH_MAX);
-    strcpy(stringToMatch,arguments[0]);
+    strcpy(stringToMatch,arguments[initialArgumentIndex]);
     //TODO: Make changes to accept flags, validate paths and ignore invalid paths
 
-	int iFlag = 0;
-	int initialArgumentIndex = parseGREPCommand(arguments, numberOfPaths, &iFlag);
+	
+	
      printf("flag value i: %d \n", iFlag);
     printf("initialArgumentIndex = %d \n",initialArgumentIndex);
-    int i = initialArgumentIndex;
+    int i = initialArgumentIndex + 1;
     while(i<numberOfPaths){
     //convert to absolute path
       char * path = getFullPath(arguments[i]); 
+	  printf("caminho = %s \n",path);
       int pathType = checkIfPathExists(path);
     //validating input
       if (pathType == PATH_TO_FILE) {
