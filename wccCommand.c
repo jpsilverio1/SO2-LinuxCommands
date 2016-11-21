@@ -87,7 +87,7 @@ void executeWCCommand(char** filePaths, int numberOfPaths){
     int initialArgumentIndex = parseWCCommand(filePaths, numberOfPaths, &cFlag, &lFlag, &wFlag);
      printf("flag values c: %d l: %d w: %d \n", cFlag, lFlag, wFlag);
     printf("initialArgumentIndex = %d \n",initialArgumentIndex);
-    int i = 0;
+    int i = initialArgumentIndex;
     while(i<numberOfPaths){
     //convert to absolute path
       char * path = getFullPath(filePaths[i]);
