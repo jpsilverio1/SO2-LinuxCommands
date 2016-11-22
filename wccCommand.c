@@ -28,12 +28,9 @@ int parseWCCommand(char** arguments, int size, int* cFlag, int* lFlag, int* wFla
         *lFlag = internalLFlag;
         *wFlag = internalWFlag;
       }
-     
-       for (index = optind; index < size; index++)
-    printf ("Non-option argument %s\n", arguments[index]);
       return optind;
-    for (index = optind; index < size; index++)
-    printf ("Non-option argument %s\n", arguments[index]);
+   // for (index = optind; index < size; index++)
+    //printf ("Non-option argument %s\n", arguments[index]);
   
 }
 int countWordsInLine(char* line) {
@@ -85,8 +82,8 @@ void executeWCCommand(char** filePaths, int numberOfPaths){
 
     int cFlag = 1, lFlag = 1, wFlag= 1;
     int initialArgumentIndex = parseWCCommand(filePaths, numberOfPaths, &cFlag, &lFlag, &wFlag);
-     printf("flag values c: %d l: %d w: %d \n", cFlag, lFlag, wFlag);
-    printf("initialArgumentIndex = %d \n",initialArgumentIndex);
+     //printf("flag values c: %d l: %d w: %d \n", cFlag, lFlag, wFlag);
+    //printf("initialArgumentIndex = %d number of paths = %d \n",initialArgumentIndex, numberOfPaths);
     int i = initialArgumentIndex;
     while(i<numberOfPaths){
     //convert to absolute path
@@ -118,7 +115,7 @@ void executeWCCommand(char** filePaths, int numberOfPaths){
       }
       i++;
     }
-    if(numberOfPaths>1){
+    if((numberOfPaths - initialArgumentIndex)>1){
       if (lFlag == 1) {
           printf("\t %d",totalLineCount);
         }

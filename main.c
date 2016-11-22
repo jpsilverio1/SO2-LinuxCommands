@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "main.h"
 #include "wccCommand.h"
 #include "catCommand.h"
@@ -71,7 +72,6 @@ void displayFileContent(char * filePath, int flag) {
 
 
 char* getUserHomeDirectory(){
-  //return getenv("HOME");
   return getpwuid(getuid())->pw_dir;
 }
 
@@ -80,6 +80,7 @@ void initializeEnvironment(){
   if (getcwd(currentDirectory,PATH_MAX) == NULL) {
     exit(1);
    } 
+  strcpy(workingDirectory, currentDirectory);
 }
 char* getCommand(char* commandLine) {
   return strtok (commandLine," ");
@@ -92,13 +93,10 @@ char** splitBySpaceIntoArray(char* str, int* arraySize) {
   char *  p    = strtok (str, " ");
   int n_spaces = 0, i;
 
-
-  /* split string and append tokens to 'res' */
-
   while (p) {
     res = realloc (res, sizeof (char*) * ++n_spaces);
     if (res == NULL)
-      exit (-1); /* memory allocation failed */
+      exit (-1); 
 
     res[n_spaces-1] = p;
 
@@ -112,7 +110,6 @@ char** splitBySpaceIntoArray(char* str, int* arraySize) {
 
   //checking if last argument is actually whitespace
   if(strspn(res[n_spaces-1], " \r\n\t") == strlen(res[n_spaces-1])){
-    printf("detectou que eh soh espaco branco\n");
     n_spaces--;
   }
   //setting size pointer
@@ -131,7 +128,6 @@ void interpretCommand(char* commandLine) {
   char* command = getCommand(commandLine);
   char** commandLineWithoutCommand = getArgumentsFromLine(elements);
   int sizeWithoutCommand = size -1;
-  //printf("command = %s size = %d\n",command,size);
   if (strcmp(command,"pwd\n") == 0 || strcmp(command,"pwd") == 0) {
       executePWDCommand();
   } else {

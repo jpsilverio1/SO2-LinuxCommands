@@ -1,5 +1,7 @@
 #include "main.h"
 
-void executeGREPCommandForSingleFile(char* filePath, char* stringToMatch);
+int parseGREPCommand(char** arguments, int size, int* iFlag);
+
+void executeGREPCommandForSingleFile(char* filePath, char* stringToMatch, int iFlag);
 
 void executeGREPCommand(char** arguments, int numberOfPaths);

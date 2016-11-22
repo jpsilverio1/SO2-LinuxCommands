@@ -9,8 +9,7 @@ int validateCDCommand(char* path) {
 }
 
 void executeCDCommand(char** arguments, int numberOfArguments) {
-  // TODO: allocate new directory properly
-  //TODO : fix error here! trying to print arguments[0] gives a segmentatio fault
+
   char* newDirectory = malloc(PATH_MAX*sizeof(char));
   if (numberOfArguments == 0) {
     strcpy(newDirectory, homeDirectory);
@@ -22,7 +21,6 @@ void executeCDCommand(char** arguments, int numberOfArguments) {
       printf("Invalid arguments for cd command \n");
     }
   }
-  //TODO: actually validate entries, allow flags
  
   char actualpath [PATH_MAX];
   newDirectory = getFullPath(newDirectory);

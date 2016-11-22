@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -18,6 +19,7 @@
 
 char currentDirectory[PATH_MAX];
 char* homeDirectory;
+char workingDirectory[PATH_MAX];
 
 
 int main (int argc, char *argv[]);
