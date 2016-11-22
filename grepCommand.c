@@ -13,7 +13,6 @@ int parseGREPCommand(char** arguments, int size, int* iFlag) {
      {
       case 'i':
         internalIFlag = 1;
-		optind = 2;
         break;
       default:
         break;
@@ -22,8 +21,8 @@ int parseGREPCommand(char** arguments, int size, int* iFlag) {
         *iFlag = internalIFlag;
       }
      
-    for (index = optind; index < size; index++)
-    	printf ("Non-option argument %s\n", arguments[index]);
+    //for (index = optind; index < size; index++)
+    //	printf ("Non-option argument %s\n", arguments[index]);
     return optind;
 
 }
@@ -35,20 +34,20 @@ void executeGREPCommandForSingleFile(char* filePath, char* stringToMatch, int iF
       char line [ 1024 ]; /* or other suitable maximum line size */
       while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
       {
-        if (iFlag==1) {
+        if (iFlag==0) {
         	if(strstr(line , stringToMatch) !=NULL)
         	{
-          		printf("%s:%s" , filePath, line);
+          		printf("%s:%s\n" , filePath, line);
         	}
         	else 
         	{
             	continue;
         	}
          }
-		if (iFlag==0) {
+		if (iFlag==1) {
 			if(strcasestr(line , stringToMatch) !=NULL)
         	{
-          		printf("%s:%s" , filePath, line);
+          		printf("%s:%s\n" , filePath, line);
         	}
         	else 
         	{
@@ -66,21 +65,21 @@ void executeGREPCommandForSingleFile(char* filePath, char* stringToMatch, int iF
 void executeGREPCommand(char** arguments, int numberOfPaths){
   int iFlag = 0;
   int initialArgumentIndex = parseGREPCommand(arguments, numberOfPaths, &iFlag);
-
-	if ((iFlag == 1 && numberOfPaths > 4) || numberOfPaths>3) {
+	//printf("number of paths = %d, glag = %d \n",numberOfPaths, iFlag);
+	if ((iFlag == 1 && numberOfPaths >= 4) || numberOfPaths>=3) {
     char* stringToMatch = malloc(PATH_MAX);
     strcpy(stringToMatch,arguments[initialArgumentIndex]);
     //TODO: Make changes to accept flags, validate paths and ignore invalid paths
 
 	
 	
-     printf("flag value i: %d \n", iFlag);
-    printf("initialArgumentIndex = %d \n",initialArgumentIndex);
+    // printf("flag value i: %d \n", iFlag);
+    //printf("initialArgumentIndex = %d \n",initialArgumentIndex);
     int i = initialArgumentIndex + 1;
     while(i<numberOfPaths){
     //convert to absolute path
       char * path = getFullPath(arguments[i]); 
-	  printf("caminho = %s \n",path);
+	  //printf("caminho = %s \n",path);
       int pathType = checkIfPathExists(path);
     //validating input
       if (pathType == PATH_TO_FILE) {

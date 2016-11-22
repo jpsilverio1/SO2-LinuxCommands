@@ -114,7 +114,7 @@ char** splitBySpaceIntoArray(char* str, int* arraySize) {
 
   //checking if last argument is actually whitespace
   if(strspn(res[n_spaces-1], " \r\n\t") == strlen(res[n_spaces-1])){
-    printf("detectou que eh soh espaco branco\n");
+    //printf("detectou que eh soh espaco branco\n");
     n_spaces--;
   }
   //setting size pointer
